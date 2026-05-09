@@ -2,10 +2,7 @@ import subprocess
 import re
 
 def __virtual__():
-    """
-    Only load this module on macOS.
-    """
-    return "macos_clt" if __grains__.get("os") == "MacOS" else False
+    return "commandLineTools" if __grains__.get("os") == "MacOS" else False
 
 
 def available():
