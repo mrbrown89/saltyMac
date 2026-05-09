@@ -1,0 +1,2 @@
+include:
+  - saltyStuff.minionConfig
