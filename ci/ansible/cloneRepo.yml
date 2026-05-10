@@ -1,6 +1,7 @@
 ---
 - name: Clone salting macOS repo
   hosts: all
+  become: true
   gather_facts: false
 
   vars:
@@ -15,4 +16,3 @@
         dest: "{{ repo_dest }}"
         version: "{{ repo_branch }}"
         update: yes
-
