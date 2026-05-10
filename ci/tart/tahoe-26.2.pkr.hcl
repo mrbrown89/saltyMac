@@ -13,7 +13,7 @@ packer {
 
 source "tart-cli" "tart" {
   from_ipsw    = "https://updates.cdn-apple.com/2025FallFCS/fullrestores/093-37399/E144C918-CF99-4BBC-B1D0-3E739B9A3F2D/UniversalMac_26.2_25C56_Restore.ipsw"
-  vm_name      = "tahoe-26.2"
+  vm_name      = "saltyMac"
   cpu_count    = 4
   memory_gb    = 8
   disk_size_gb = 50
@@ -64,9 +64,9 @@ source "tart-cli" "tart" {
     "<wait10s><leftAltOn>q<leftAltOff>",
   ]
   
- run_extra_args = [
+  run_extra_args = [
       "--no-audio"
-]
+  ]
     
   create_grace_time    = "30s"
   recovery_partition   = "keep"
@@ -87,13 +87,9 @@ build {
     ]
   }
 
-provisioner "shell" {
-  script = "../scripts/brew.sh"
-}
-
-  ###################################
-  # Ansible provisioners
-  ###################################
+  provisioner "shell" {
+    script = "../scripts/brew.sh"
+  }
 
   provisioner "ansible" {
     playbook_file   = "../ansible/autoLogin.yml"
@@ -130,5 +126,4 @@ provisioner "shell" {
     user            = "admin"
     extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
   }
-
 }
