@@ -13,7 +13,7 @@ log() {
 }
 
 checkSaltInstalled() {
-  command -v salt-call >/dev/null 2>&1 || {
+  command -v /opt/salt/salt-call >/dev/null 2>&1 || {
     log "Salt is not installed. Exiting."
     exit 1
   }
