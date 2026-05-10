@@ -1,0 +1,24 @@
+---
+- name: Configure auto-login for a local admin
+  hosts: all
+  gather_facts: false
+  become: true
+
+  vars:
+    admin_admin: Matt
+    kcpassword_b64: "Matt"
+
+  tasks:
+    - name: Write /etc/kcpassword
+      copy:
+        dest: /etc/kcpassword
+        owner: root
+        group: wheel
+        mode: "0600"
+        content: "{{ kcpassword_b64 | b64decode }}"
+
+    - name: Set autoLoginadmin
+      command: >
+        /usr/bin/defaults write
+        /Library/Preferences/com.apple.loginwindow
+        autoLoginadmin -string {{ admin_admin }}
