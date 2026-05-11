@@ -133,4 +133,5 @@ provisioner "ansible" {
   provisioner "shell" {
     script = "../scripts/bootStrap.sh"
   }
+
 }
