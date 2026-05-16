@@ -4,3 +4,4 @@ base:
     - macOS
     - rosetta
     - security
+    - smbSigning
