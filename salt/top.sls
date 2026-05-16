@@ -2,3 +2,4 @@ base:
   '*':
     - saltyStuff
     - macOS
+    - rosetta
