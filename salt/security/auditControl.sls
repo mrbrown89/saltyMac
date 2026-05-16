@@ -1,4 +1,6 @@
+# -----------------------------
 # Ensure audit_control exists and enforce ownership + permissions
+# -----------------------------
 audit_control_file:
   file.managed:
     - name: /etc/security/audit_control
