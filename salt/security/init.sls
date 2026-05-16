@@ -1,0 +1,13 @@
+include:
+  - security.fireWall
+  - security.terminalKeyboard
+  - security.auditd
+  - security.auditControl
+  - security.disableSSH
+  - security.disableRemoteAppleEvents
+  - security.disableRootShell
+  - security.sudoTimeout
+  - security.nfsServer
+  - security.disableAutoLogin
+  - security.disableGuest
+  - security.networkTime
