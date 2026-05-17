@@ -23,9 +23,11 @@
 load_nudge_launchagent:
   cmd.run:
     - name: |
+        launchctl bootout gui/{{ console_uid }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist 2>/dev/null || true
         launchctl bootstrap gui/{{ console_uid }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist
-    - unless: |
-        launchctl print gui/{{ console_uid }}/com.github.macadmins.Nudge >/dev/null 2>&1
+    - onlyif:
+      - test "{{ console_user }}" != "root"
+      - test -d "{{ nudge_app }}"
     - require:
       - file: /Library/LaunchAgents/com.github.macadmins.Nudge.plist
 
