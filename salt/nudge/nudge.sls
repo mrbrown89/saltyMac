@@ -1,5 +1,6 @@
 {% set nudge_app = '/Applications/Utilities/Nudge.app' %}
-{% set console_uid = '$(id -u $(stat -f %Su /dev/console))' %}
+{% set console_user = salt['cmd.run']('stat -f %Su /dev/console') %}
+{% set console_uid = salt['cmd.run']('id -u {}'.format(console_user)) %}
 
 /Library/Preferences/com.github.macadmins.Nudge.json:
   file.managed:
