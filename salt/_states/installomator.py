@@ -5,7 +5,7 @@ def managed(
     appName=None,
     exact=False,
     args=None,
-    installomatorPath="/usr/local/saltyMac/bin/Installomator.sh",
+    installomatorPath="/usr/local/Installomator.sh",
     searchPaths=None,
 ):
     """
