@@ -5,3 +5,4 @@ base:
     - rosetta
     - security
     - smbSigning
+    - nudge
