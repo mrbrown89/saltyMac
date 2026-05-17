@@ -2,7 +2,9 @@ base:
   '*':
     - saltyStuff
     - macOS
+    - installomator
     - rosetta
     - security
     - smbSigning
     - nudge
+    - apps
