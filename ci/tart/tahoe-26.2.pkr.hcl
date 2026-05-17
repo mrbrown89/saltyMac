@@ -63,13 +63,13 @@ source "tart-cli" "tart" {
     "<wait10s><leftShiftOn><tab><leftShiftOff><wait1s><spacebar>",
     "<wait10s><leftAltOn>q<leftAltOff>",
   ]
-  
+
   run_extra_args = [
-      "--no-audio"
+    "--no-audio"
   ]
-    
-  create_grace_time    = "30s"
-  recovery_partition   = "keep"
+
+  create_grace_time  = "30s"
+  recovery_partition = "keep"
 }
 
 build {
@@ -77,7 +77,10 @@ build {
 
   provisioner "shell" {
     inline = [
-      "echo admin | sudo -S sh -c \"mkdir -p /etc/sudoers.d/; echo 'admin ALL=(ALL) NOPASSWD: ALL' | EDITOR=tee visudo /etc/sudoers.d/admin-nopasswd\"",
+      "echo 'admin ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/admin-nopasswd",
+      "chmod 0440 /etc/sudoers.d/admin-nopasswd",
+      "chown root:wheel /etc/sudoers.d/admin-nopasswd",
+      "visudo -cf /etc/sudoers"
     ]
   }
 
@@ -114,21 +117,21 @@ build {
     user            = "admin"
     extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
   }
-  
+
   provisioner "ansible" {
     playbook_file   = "../ansible/shell.yml"
     user            = "admin"
     extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
   }
-  
-provisioner "ansible" {
-  playbook_file   = "../ansible/cloneRepo.yml"
-  user            = "admin"
-  extra_arguments = [
-    "--extra-vars",
-    "ansible_become_pass=admin"
-  ]
-}
+
+  provisioner "ansible" {
+    playbook_file = "../ansible/cloneRepo.yml"
+    user          = "admin"
+    extra_arguments = [
+      "--extra-vars",
+      "ansible_become_pass=admin"
+    ]
+  }
 
   provisioner "shell" {
     script = "../scripts/bootStrap.sh"
