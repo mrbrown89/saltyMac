@@ -77,10 +77,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "echo 'admin ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/admin-nopasswd",
-      "chmod 0440 /etc/sudoers.d/admin-nopasswd",
-      "chown root:wheel /etc/sudoers.d/admin-nopasswd",
-      "visudo -cf /etc/sudoers"
+      "sudo install -o root -g wheel -m 0440 /dev/stdin /etc/sudoers.d/admin-nopasswd <<EOF\nadmin ALL=(ALL) NOPASSWD: ALL\nEOF",
+      "sudo visudo -cf /etc/sudoers"
     ]
   }
 
