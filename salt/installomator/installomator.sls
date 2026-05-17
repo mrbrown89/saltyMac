@@ -1,5 +1,5 @@
 installomator-script:
   file.managed:
-    - name: /opt/saltyMac/bin/Installomator.sh
+    - name: /usr/local/
     - source: salt://installomator/files/Installomator.sh
     - mode: 755
