@@ -191,6 +191,6 @@ This defines which states are applied to minions.
 
 ## CI Workflow
 
-One of the goals of this repo is to demonstrate modern Infrastructure as Code workflows for macOS. Please see the `CI.md` doc in the `docs` directory for more info.
+One of the goals of this repo is to demonstrate modern Infrastructure as Code workflows for macOS. Please see the `README.md` doc in `/docs/CI` directory for more info.
 
 
