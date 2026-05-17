@@ -1,0 +1,75 @@
+{
+  "optionalFeatures": {
+    "acceptableApplicationBundleIDs": [],
+    "acceptableAssertionApplicationNames": [],
+    "acceptableAssertionUsage": false,
+    "acceptableCameraUsage": false,
+    "acceptableScreenSharingUsage": false,
+    "aggressiveUserExperience": true,
+    "aggressiveUserFullScreenExperience": false,
+    "asynchronousSoftwareUpdate": true,
+    "attemptToFetchMajorUpgrade": true,
+    "enforceMinorUpdates": true
+  },
+
+  "osVersionRequirements": [
+    {
+      "requiredInstallationDate": "{{ salt['pillar.get']('nudge:required_installation_date') }}",
+      "requiredMinimumOSVersion": "{{ salt['pillar.get']('nudge:required_minimum_os_version') }}",
+      "targetedOSVersionsRule": "default"
+    }
+  ],
+
+  "userExperience": {
+    "allowGracePeriods": false,
+    "allowLaterDeferralButton": true,
+    "allowUserQuitDeferrals": true,
+    "allowedDeferrals": 2,
+
+    "approachingRefreshCycle": 14400,
+    "elapsedRefreshCycle": 1800,
+    "initialRefreshCycle": 21600,
+
+    "launchAgentIdentifier": "com.github.macadmins.Nudge",
+    "loadLaunchAgent": false,
+
+    "maxRandomDelayInSeconds": 0,
+    "randomDelay": false
+  },
+
+  "userInterface": {
+    "fallbackLanguage": "en",
+
+    "showDeferralCount": true,
+    "showRequiredDate": true,
+    "showRequiredOSVersion": true,
+
+    "simpleMode": false,
+    "singleQuitButton": false,
+    "showActivelyExploitedCVEs": false,
+
+    "updateElements": [
+      {
+        "_language": "en",
+
+        "mainHeader": "National Space Centre IT",
+
+        "mainContentHeader": "A macOS security update is required",
+
+        "mainContentSubHeader": "Please update your Mac before the deadline",
+
+        "mainContentText": "To keep your Mac secure, compliant, and fully supported, please install the required macOS update.\n\nThe update normally takes around 30 minutes and your Mac will need to restart.",
+
+        "mainContentNote": "Please save your work before starting the update.",
+
+        "subHeader": "Required update available",
+
+        "actionButtonText": "Update Now",
+        "informationButtonText": "More Info",
+
+        "primaryQuitButtonText": "Later",
+        "secondaryQuitButtonText": "OK"
+      }
+    ]
+  }
+}
