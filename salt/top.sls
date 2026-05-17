@@ -7,4 +7,4 @@ base:
     - security
     - smbSigning
     - nudge
-    - apps
+    - installomatorApps
