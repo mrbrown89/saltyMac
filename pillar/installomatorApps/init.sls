@@ -1,0 +1,2 @@
+include:
+  - installomatorApps.installomatorApps

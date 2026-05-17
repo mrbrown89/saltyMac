@@ -1,4 +1,4 @@
 base:
   '*':
-    - apps
+    - installomatorApps
     - nudge
