@@ -1,3 +1,6 @@
+include:
+  - installomator.installomator
+
 {% for app_id, app in pillar.get('installomator_apps', {}).items() %}
 
 installomator_{{ app_id }}:
@@ -9,11 +12,7 @@ installomator_{{ app_id }}:
 {% for arg in app.get('args', []) %}
       - {{ arg }}
 {% endfor %}
-{% if app.get('search_paths') %}
-    - searchPaths:
-{% for path in app.search_paths %}
-      - {{ path }}
-{% endfor %}
-{% endif %}
+    - require:
+      - file: installomator-script
 
 {% endfor %}
