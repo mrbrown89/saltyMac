@@ -57,7 +57,7 @@ Now we can run the `saltyMac.pkr` file in `/ci/saltyMac`. Run `packer init .` to
 
 ## Running Salt
 
-Start up the `saltyMac` VM with `tart run saltyMac` and login with the password `admin`.
+Start up the `saltyMac` VM with `tart run saltyMac` and login with the password `admin`. Or SSH in with `ssh admin@$(tart ip saltyMac)`.
 
 
 Once the mac is up we can run the first salt call to build the mac with:
@@ -77,3 +77,5 @@ You can run a full salt build with:
 ```
 sudo salt-call --local state.apply test=false
 ```
+
+During the first run you will get errors as some plists do not exist but the plists will get added during the first salt call. 
