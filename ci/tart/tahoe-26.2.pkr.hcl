@@ -13,7 +13,7 @@ packer {
 
 source "tart-cli" "tart" {
   from_ipsw    = "https://updates.cdn-apple.com/2025FallFCS/fullrestores/093-37399/E144C918-CF99-4BBC-B1D0-3E739B9A3F2D/UniversalMac_26.2_25C56_Restore.ipsw"
-  vm_name      = "saltyMac"
+  vm_name      = "tahoe-26.2"
   cpu_count    = 4
   memory_gb    = 8
   disk_size_gb = 50
@@ -63,13 +63,13 @@ source "tart-cli" "tart" {
     "<wait10s><leftShiftOn><tab><leftShiftOff><wait1s><spacebar>",
     "<wait10s><leftAltOn>q<leftAltOff>",
   ]
-
-  run_extra_args = [
-    "--no-audio"
-  ]
-
-  create_grace_time  = "30s"
-  recovery_partition = "keep"
+  
+ run_extra_args = [
+      "--no-audio"
+]
+    
+  create_grace_time    = "30s"
+  recovery_partition   = "keep"
 }
 
 build {
@@ -77,8 +77,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo install -o root -g wheel -m 0440 /dev/stdin /etc/sudoers.d/admin-nopasswd <<EOF\nadmin ALL=(ALL) NOPASSWD: ALL\nEOF",
-      "sudo visudo -cf /etc/sudoers"
+      "echo admin | sudo -S sh -c \"mkdir -p /etc/sudoers.d/; echo 'admin ALL=(ALL) NOPASSWD: ALL' | EDITOR=tee visudo /etc/sudoers.d/admin-nopasswd\"",
     ]
   }
 
@@ -88,9 +87,13 @@ build {
     ]
   }
 
-  provisioner "shell" {
-    script = "../scripts/brew.sh"
-  }
+provisioner "shell" {
+  script = "../scripts/brew.sh"
+}
+
+  ###################################
+  # Ansible provisioners
+  ###################################
 
   provisioner "ansible" {
     playbook_file   = "../ansible/autoLogin.yml"
@@ -115,24 +118,4 @@ build {
     user            = "admin"
     extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
   }
-
-  provisioner "ansible" {
-    playbook_file   = "../ansible/shell.yml"
-    user            = "admin"
-    extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
-  }
-
-  provisioner "ansible" {
-    playbook_file = "../ansible/cloneRepo.yml"
-    user          = "admin"
-    extra_arguments = [
-      "--extra-vars",
-      "ansible_become_pass=admin"
-    ]
-  }
-
-  provisioner "shell" {
-    script = "../scripts/bootStrap.sh"
-  }
-
 }
