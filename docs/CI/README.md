@@ -47,7 +47,11 @@ tart clone tahoe-26.2 saltyMac
 
 Running `tart list` will show:
 
-
+```
+Source Name       Disk Size Accessed       State  
+local  saltyMac   50   28   31 seconds ago stopped
+local  tahoe-26.2 50   30   2 minutes ago  stopped
+```
 
 Now we can run the `saltyMac.pkr` file in `/ci/saltyMac`. Run `packer init .` to make sure we are ready to go. Then run `packer build .`. 
 
