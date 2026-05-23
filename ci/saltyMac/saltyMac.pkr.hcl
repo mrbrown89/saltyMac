@@ -27,9 +27,4 @@ build {
     extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
   }
   
-provisioner "shell" {
-  script = "../scripts/saltyMacs.sh"
-  execute_command = "sudo zsh '{{ .Path }}'"
-}
-  
 }
