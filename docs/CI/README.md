@@ -57,13 +57,10 @@ Now we can run the `saltyMac.pkr` file in `/ci/saltyMac`. Run `packer init .` to
 
 ## Running Salt
 
-Start up the `saltyMac` VM with `tart run saltyMac`. Once the mac is up, open terminal on the mac and:
+Start up the `saltyMac` VM with `tart run saltyMac` and login with the password `admin`.
 
-```
-cd /opt/saltyMac/
-```
 
-Now we can run the first salt call to build the mac with:
+Once the mac is up we can run the first salt call to build the mac with:
 
 ```
 sudo salt-call --local state.apply --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar" test=false
