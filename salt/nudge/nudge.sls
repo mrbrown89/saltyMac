@@ -1,5 +1,5 @@
 {% set nudge_app = '/Applications/Utilities/Nudge.app' %}
-{% set console_user = grains['console_user'] %}
+{% set console_uid = grains['console_uid'] %}
 
 /Library/Preferences/com.github.macadmins.Nudge.json:
   file.managed:
@@ -23,17 +23,17 @@
 load_nudge_launchagent:
   cmd.run:
     - name: |
-        launchctl bootstrap gui/{{ console_user }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist
+        launchctl bootstrap gui/{{ console_uid }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist
     - unless: |
-        launchctl print gui/{{ console_user }}/com.github.macadmins.Nudge >/dev/null 2>&1
+        launchctl print gui/{{ console_uid }}/com.github.macadmins.Nudge >/dev/null 2>&1
     - require:
       - file: /Library/LaunchAgents/com.github.macadmins.Nudge.plist
 
 reload_nudge_launchagent:
   cmd.run:
     - name: |
-        launchctl bootout gui/{{ console_user }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist 2>/dev/null || true
-        launchctl bootstrap gui/{{ console_user }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist
+        launchctl bootout gui/{{ console_uid }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist 2>/dev/null || true
+        launchctl bootstrap gui/{{ console_uid }} /Library/LaunchAgents/com.github.macadmins.Nudge.plist
     - onchanges:
       - file: /Library/LaunchAgents/com.github.macadmins.Nudge.plist
     - require:
