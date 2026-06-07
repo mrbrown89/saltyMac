@@ -69,13 +69,12 @@ sudo salt-call --local saltutil.sync_grains && sudo salt-call --local state.appl
 The first run will have some errors due to plists being corrected etc. Once the first run has completed, run another salt call with:
 
 ```
-sudo salt-call --local state.apply test=true
-```
-
-You can run a full salt build with:
-
-```
 sudo salt-call --local state.apply test=false
 ```
 
-During the first run you will get errors as some plists do not exist but the plists will get added during the first salt call. 
+Which will give a much cleaner result. Why not run another run or run a test with:
+
+
+```
+sudo salt-call --local state.apply test=test
+```
