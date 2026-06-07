@@ -3,7 +3,6 @@ include:
   - security.terminalKeyboard
   - security.auditControl
   - security.disableRemoteAppleEvents
-  - security.disableRootShell
   - security.sudoTimeout
   - security.nfsServer
   - security.disableAutoLogin
