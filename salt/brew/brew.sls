@@ -1,6 +1,6 @@
 {% set brew = pillar.get('brew', {}) %}
 {% set brew_bin = '/opt/homebrew/bin/brew' %}
-{% set console_user = grains['console_user'] %}
+{% set console_user = grains.get('console_user', 'root') %}
 
 # -------------------------------------------------
 # Homebrew taps
@@ -11,8 +11,8 @@
 brew_tap_{{ tap | replace('/', '_') }}:
   cmd.run:
     - name: {{ brew_bin }} tap {{ tap }}
-    - unless: {{ brew_bin }} tap | grep -q "^{{ tap }}$"
     - runas: {{ console_user }}
+    - unless: {{ brew_bin }} tap | grep -qx "{{ tap }}"
 
 {% endfor %}
 
@@ -21,16 +21,12 @@ brew_tap_{{ tap | replace('/', '_') }}:
 # -------------------------------------------------
 
 brew_formulae:
-  pkg.installed:
-    - pkgs:
-{% for formula in brew.get('formulae', []) %}
-      - {{ formula }}
-{% endfor %}
-    - brew_bin: {{ brew_bin }}
-    - require:
-{% for tap in brew.get('taps', []) %}
-      - cmd: brew_tap_{{ tap | replace('/', '_') }}
-{% endfor %}
+  cmd.run:
+    - name: >
+        {{ brew_bin }} install {{ brew.get('formulae', []) | join(' ') }}
+    - runas: {{ console_user }}
+    - unless: >
+        {{ brew_bin }} list --formula | grep -E '({{ brew.get('formulae', []) | join('|') }})'
 
 # -------------------------------------------------
 # Homebrew casks
@@ -41,11 +37,7 @@ brew_formulae:
 brew_cask_{{ cask | replace('-', '_') }}:
   cmd.run:
     - name: {{ brew_bin }} install --cask {{ cask }}
-    - unless: {{ brew_bin }} list --cask {{ cask }}
-    - runas: {{ grains['console_user'] }}
-    - require:
-{% for tap in brew.get('taps', []) %}
-      - cmd: brew_tap_{{ tap | replace('/', '_') }}
-{% endfor %}
+    - runas: {{ console_user }}
+    - unless: {{ brew_bin }} list --cask | grep -qx "{{ cask }}"
 
 {% endfor %}
