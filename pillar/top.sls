@@ -1,4 +1,5 @@
 base:
   '*':
     - installomatorApps
+    - brew
     - nudge

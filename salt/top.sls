@@ -4,6 +4,7 @@ base:
     - macOS
     - installomator
     - rosetta
+    - brew
     - security
     - smbSigning
     - nudge
