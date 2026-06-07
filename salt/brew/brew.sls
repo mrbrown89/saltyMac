@@ -10,9 +10,16 @@
 
 brew_tap_{{ tap | replace('/', '_') }}:
   cmd.run:
-    - name: {{ brew_bin }} tap {{ tap }}
-    - runas: {{ console_user }}
-    - unless: {{ brew_bin }} tap | grep -qx "{{ tap }}"
+    - name: >
+        su - {{ console_user }} -c '
+        eval "$({{ brew_bin }} shellenv)";
+        {{ brew_bin }} tap {{ tap }}
+        '
+    - unless: >
+        su - {{ console_user }} -c '
+        eval "$({{ brew_bin }} shellenv)";
+        {{ brew_bin }} tap | grep -qx "{{ tap }}"
+        '
 
 {% endfor %}
 
@@ -23,10 +30,15 @@ brew_tap_{{ tap | replace('/', '_') }}:
 brew_formulae:
   cmd.run:
     - name: >
-        {{ brew_bin }} install {{ brew.get('formulae', []) | join(' ') }}
-    - runas: {{ console_user }}
+        su - {{ console_user }} -c '
+        eval "$({{ brew_bin }} shellenv)";
+        {{ brew_bin }} install {{ brew.get("formulae", []) | join(" ") }}
+        '
     - unless: >
-        {{ brew_bin }} list --formula | grep -E '({{ brew.get('formulae', []) | join('|') }})'
+        su - {{ console_user }} -c '
+        eval "$({{ brew_bin }} shellenv)";
+        {{ brew_bin }} list --formula | grep -E "({{ brew.get("formulae", []) | join("|") }})"
+        '
 
 # -------------------------------------------------
 # Homebrew casks
@@ -36,8 +48,15 @@ brew_formulae:
 
 brew_cask_{{ cask | replace('-', '_') }}:
   cmd.run:
-    - name: {{ brew_bin }} install --cask {{ cask }}
-    - runas: {{ console_user }}
-    - unless: {{ brew_bin }} list --cask | grep -qx "{{ cask }}"
+    - name: >
+        su - {{ console_user }} -c '
+        eval "$({{ brew_bin }} shellenv)";
+        {{ brew_bin }} install --cask {{ cask }}
+        '
+    - unless: >
+        su - {{ console_user }} -c '
+        eval "$({{ brew_bin }} shellenv)";
+        {{ brew_bin }} list --cask | grep -qx "{{ cask }}"
+        '
 
 {% endfor %}
