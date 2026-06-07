@@ -1,0 +1,4 @@
+brew:
+  casks:
+    - cyberduck
+    - lulu
