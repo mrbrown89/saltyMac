@@ -1,0 +1,3 @@
+brew:
+  taps:
+    - hashicorp/tap

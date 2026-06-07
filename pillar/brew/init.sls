@@ -1,2 +1,4 @@
 include:
-  - brew.packages
+  - brew.taps
+  - brew.formulae
+  - brew.casks

@@ -1,6 +1,6 @@
 {% set brew = pillar.get('brew', {}) %}
 {% set brew_bin = '/opt/homebrew/bin/brew' %}
-{% set console_user = grains.get('console_user', 'root') %}
+{% set console_user = grains['console_user'] %}
 
 # -------------------------------------------------
 # Homebrew taps
@@ -10,16 +10,9 @@
 
 brew_tap_{{ tap | replace('/', '_') }}:
   cmd.run:
-    - name: >
-        su - {{ console_user }} -c '
-        eval "$({{ brew_bin }} shellenv)";
-        {{ brew_bin }} tap {{ tap }}
-        '
-    - unless: >
-        su - {{ console_user }} -c '
-        eval "$({{ brew_bin }} shellenv)";
-        {{ brew_bin }} tap | grep -qx "{{ tap }}"
-        '
+    - name: {{ brew_bin }} tap {{ tap }}
+    - unless: {{ brew_bin }} tap | grep -q "^{{ tap }}$"
+    - runas: {{ console_user }}
 
 {% endfor %}
 
@@ -28,17 +21,16 @@ brew_tap_{{ tap | replace('/', '_') }}:
 # -------------------------------------------------
 
 brew_formulae:
-  cmd.run:
-    - name: >
-        su - {{ console_user }} -c '
-        eval "$({{ brew_bin }} shellenv)";
-        {{ brew_bin }} install {{ brew.get("formulae", []) | join(" ") }}
-        '
-    - unless: >
-        su - {{ console_user }} -c '
-        eval "$({{ brew_bin }} shellenv)";
-        {{ brew_bin }} list --formula | grep -E "({{ brew.get("formulae", []) | join("|") }})"
-        '
+  pkg.installed:
+    - pkgs:
+{% for formula in brew.get('formulae', []) %}
+      - {{ formula }}
+{% endfor %}
+    - brew_bin: {{ brew_bin }}
+    - require:
+{% for tap in brew.get('taps', []) %}
+      - cmd: brew_tap_{{ tap | replace('/', '_') }}
+{% endfor %}
 
 # -------------------------------------------------
 # Homebrew casks
@@ -48,15 +40,12 @@ brew_formulae:
 
 brew_cask_{{ cask | replace('-', '_') }}:
   cmd.run:
-    - name: >
-        su - {{ console_user }} -c '
-        eval "$({{ brew_bin }} shellenv)";
-        {{ brew_bin }} install --cask {{ cask }}
-        '
-    - unless: >
-        su - {{ console_user }} -c '
-        eval "$({{ brew_bin }} shellenv)";
-        {{ brew_bin }} list --cask | grep -qx "{{ cask }}"
-        '
+    - name: {{ brew_bin }} install --cask {{ cask }}
+    - unless: {{ brew_bin }} list --cask {{ cask }}
+    - runas: {{ grains['console_user'] }}
+    - require:
+{% for tap in brew.get('taps', []) %}
+      - cmd: brew_tap_{{ tap | replace('/', '_') }}
+{% endfor %}
 
 {% endfor %}
