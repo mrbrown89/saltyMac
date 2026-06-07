@@ -63,7 +63,7 @@ Start up the `saltyMac` VM with `tart run saltyMac` and login with the password 
 Once the mac is up we can run the first salt call to build the mac with:
 
 ```
-sudo salt-call --local state.apply --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar" test=false
+sudo salt-call --local saltutil.sync_grains && sudo salt-call --local state.apply --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar" test=false
 ```
 
 Once the first run has completed you can run a salt test with:
