@@ -57,7 +57,7 @@ Now we can run the `saltyMac.pkr` file in `/ci/saltyMac`. Run `packer init .` to
 
 ## Running Salt
 
-Start up the `saltyMac` VM with `tart run saltyMac` and login with the password `admin`. Or SSH in with `ssh admin@$(tart ip saltyMac)`.
+Start up the `saltyMac` VM with `tart run saltyMac` and login with the password `admin`. I then prefer to SSH in with `ssh admin@$(tart ip saltyMac)` to run salt calls but make sure to login to have an active UI session.
 
 
 Once the mac is up we can sync salt grains and run the first salt call to build the mac with:
