@@ -60,10 +60,10 @@ Now we can run the `saltyMac.pkr` file in `/ci/saltyMac`. Run `packer init .` to
 Start up the `saltyMac` VM with `tart run saltyMac` and login with the password `admin`. I then prefer to SSH in with `ssh admin@$(tart ip saltyMac)` to run salt calls but make sure to login to have an active UI session.
 
 
-Once the mac is up we can sync salt grains and run the first salt call to build the mac with:
+Once the mac is up we can run the first salt call to build the mac with:
 
 ```
-sudo salt-call --local saltutil.sync_grains && sudo salt-call --local state.apply --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar" test=false
+sudo salt-call --local state.apply --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar" test=false
 ```
 
 The first run will have some errors due to plists being corrected etc. Once the first run has completed, run another salt call with:
