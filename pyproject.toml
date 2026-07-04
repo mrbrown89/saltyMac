@@ -1,8 +1,8 @@
-[tool.ruff.lint]
-builtins = [
-  "__salt__",
-  "__opts__",
-  "__grains__",
-  "__pillar__",
-  "__context__",
-]
+ [tool.ruff.lint.pyflakes]
+ builtins = [
+   "__salt__",
+   "__opts__",
+   "__grains__",
+   "__pillar__",
+   "__context__",
+ ]
