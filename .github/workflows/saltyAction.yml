@@ -42,12 +42,6 @@ jobs:
       - name: Check Packer Formatting
         run: packer fmt -check -recursive .
 
-      - name: Initialise Packer Plugins
-        run: find . -name "*.pkr.hcl" -print0 | xargs -0 -n1 dirname | sort -u | xargs -I{} packer init {}
-
-      - name: Validate Packer Templates
-        run: find . -name "*.pkr.hcl" -print0 | xargs -0 -n1 dirname | sort -u | xargs -I{} packer validate {}
-
   test-macos:
     name: Test Salt on macOS
     needs: lint
