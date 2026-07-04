@@ -47,7 +47,7 @@ jobs:
 
       - name: Validate Packer Templates
         run: find . -name "*.pkr.hcl" -print0 | xargs -0 -n1 dirname | sort -u | xargs -I{} packer validate {}
-        
+
   test-macos:
     name: Test Salt on macOS
     needs: lint
