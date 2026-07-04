@@ -49,7 +49,7 @@ def is_installed_and_active():
     import os
     clt_path = "/Library/Developer/CommandLineTools"
     try:
-        version_info = subprocess.run(
+        subprocess.run(
             ["pkgutil", "--pkg-info", "com.apple.pkg.CLTools_Executables"],
             capture_output=True,
             text=True,
