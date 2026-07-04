@@ -1,0 +1,116 @@
+name: Validate Salt States
+
+on:
+  push:
+    branches:
+      - testing
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  lint:
+    name: Lint Repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install lint tools
+        run: pip install yamllint ruff ansible
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Install Packer
+        uses: hashicorp/setup-packer@v3
+
+      - name: Lint YAML
+        run: yamllint .
+
+      - name: Lint Shell Scripts
+        run: find . -name "*.sh" ! -path "./salt/installomator/files/*" -print0 | xargs -0 shellcheck
+
+      - name: Lint Python
+        run: ruff check .
+
+      - name: Check Ansible Playbook Syntax
+        run: find ci/ansible -name "*.yml" -print0 | xargs -0 -n1 ansible-playbook --syntax-check
+
+      - name: Check Packer Formatting
+        run: packer fmt -check -recursive .
+
+  test-macos:
+    name: Test Salt on macOS
+    needs: lint
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Salt and stage repository
+        run: .github/scripts/installSaltMacos.sh
+
+      - name: Sync Salt modules, states and grains
+        run: sudo /opt/salt/salt-call --local saltutil.sync_all --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar"
+
+      - name: Converge Salt states
+        run: |
+          for i in 1 2 3; do
+            echo ""
+            echo "========== Salt convergence run ${i} =========="
+            sudo /opt/salt/salt-call --local state.apply saltenv=base --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar" || true
+          done
+
+      - name: Verify Salt convergence
+        run: sudo /opt/salt/salt-call --local state.apply saltenv=base --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar"
+
+  promote:
+    name: Promote to Main
+    needs: test-macos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout testing branch
+        uses: actions/checkout@v4
+        with:
+          ref: testing
+
+      - name: Ensure README contains CI badge
+        run: |
+          BADGE='[![Validate Salt States](https://github.com/${{ github.repository }}/actions/workflows/saltyAction.yml/badge.svg?branch=testing)](https://github.com/${{ github.repository }}/actions/workflows/saltyAction.yml)'
+
+          if ! grep -q "actions/workflows/saltyAction.yml/badge.svg" README.md; then
+            printf "%s\n\n%s" "$BADGE" "$(cat README.md)" > README.md
+          fi
+
+      - name: Commit README if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet README.md; then
+            git add README.md
+            git commit -m "docs: add CI badge"
+            git push origin testing
+          else
+            echo "README already contains badge."
+          fi
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh pr list --base main --head testing --state open --json number --jq '.[0].number' | grep -q '[0-9]'; then
+            echo "Pull request already exists."
+          else
+            gh pr create \
+              --base main \
+              --head testing \
+              --title "Promote testing to main" \
+              --body "CI has passed linting and successfully converged Salt states on a GitHub-hosted macOS runner." \
+            || echo "Unable to create PR automatically."
+          fi

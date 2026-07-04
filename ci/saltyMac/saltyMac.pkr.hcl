@@ -26,5 +26,5 @@ build {
     user            = "admin"
     extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
   }
-  
+
 }

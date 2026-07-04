@@ -1,0 +1,7 @@
+ [tool.ruff.lint]
+ select = ["E", "F"]
+
+ [tool.ruff.lint.per-file-ignores]
+ "salt/_modules/*.py" = ["F821"]
+ "salt/_states/*.py" = ["F821"]
+ "salt/_grains/*.py" = ["F821"]

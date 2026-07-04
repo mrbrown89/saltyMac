@@ -294,7 +294,7 @@ def getAppByBundleId(bundleId, searchPaths=None):
 
 def getInstallomatorInfo(
     label,
-    installomatorPath="/opt/saltyMacs/bin/Installomator.sh",
+    installomatorPath="/opt/saltyMacs/bin/Installomator.zsh",
     debugLevel="2",
 ):
     """
@@ -347,7 +347,7 @@ def installomatorUpdateNeeded(
     name=None,
     bundleId=None,
     exact=False,
-    installomatorPath="/opt/saltyMacs/bin/Installomator.sh",
+    installomatorPath="/opt/saltyMacs/bin/Installomator.zsh",
     searchPaths=None,
 ):
     installedVersion = getInstalledVersion(

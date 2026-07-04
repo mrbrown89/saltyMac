@@ -63,13 +63,13 @@ source "tart-cli" "tart" {
     "<wait10s><leftShiftOn><tab><leftShiftOff><wait1s><spacebar>",
     "<wait10s><leftAltOn>q<leftAltOff>",
   ]
-  
- run_extra_args = [
-      "--no-audio"
-]
-    
-  create_grace_time    = "30s"
-  recovery_partition   = "keep"
+
+  run_extra_args = [
+    "--no-audio"
+  ]
+
+  create_grace_time  = "30s"
+  recovery_partition = "keep"
 }
 
 build {
@@ -87,9 +87,9 @@ build {
     ]
   }
 
-provisioner "shell" {
-  script = "../scripts/brew.sh"
-}
+  provisioner "shell" {
+    script = "../scripts/brew.sh"
+  }
 
   ###################################
   # Ansible provisioners

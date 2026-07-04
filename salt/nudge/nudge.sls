@@ -1,5 +1,6 @@
 {% set nudge_app = '/Applications/Utilities/Nudge.app' %}
 {% set console_uid = grains['console_uid'] %}
+{% set salty_ci = grains.get('salty_ci', False) %}
 
 /Library/Preferences/com.github.macadmins.Nudge.json:
   file.managed:
@@ -20,6 +21,8 @@
     - onlyif:
       - test -d "{{ nudge_app }}"
 
+{% if not salty_ci %}
+
 load_nudge_launchagent:
   cmd.run:
     - name: |
@@ -38,3 +41,11 @@ reload_nudge_launchagent:
       - file: /Library/LaunchAgents/com.github.macadmins.Nudge.plist
     - require:
       - file: /Library/LaunchAgents/com.github.macadmins.Nudge.plist
+
+{% else %}
+
+skip_nudge_launchagent_in_ci:
+  test.nop:
+    - name: "Skipping Nudge LaunchAgent bootstrap on GitHub Actions runner"
+
+{% endif %}
