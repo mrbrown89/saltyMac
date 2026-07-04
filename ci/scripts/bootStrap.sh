@@ -13,10 +13,7 @@ log() {
 runSaltBootstrap() {
   log "Running Salt masterless bootstrap..."
 
-  sudo /opt/salt/salt-call --local \
-    state.apply saltenv=base \
-    --file-root="$fileRoot" \
-    --pillar-root="$pillarRoot"
+  sudo /opt/salt/salt-call --local state.apply saltenv=base --file-root="$fileRoot" --pillar-root="$pillarRoot"
 }
 
 main() {
