@@ -111,5 +111,6 @@ jobs:
               --base main \
               --head testing \
               --title "Promote testing to main" \
-              --body "CI has passed linting and successfully converged Salt states on a GitHub-hosted macOS runner."
+              --body "CI has passed linting and successfully converged Salt states on a GitHub-hosted macOS runner." \
+            || echo "Unable to create PR automatically."
           fi
