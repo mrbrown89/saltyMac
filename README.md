@@ -45,8 +45,12 @@ Salt is usually associated with Linux infrastructure but it also works extremely
 
 ```
 saltyMac/
-├── ci/
+├── .github/
+│   ├── scripts/
+│   └── workflows/
+├── demo/
 │   ├── ansible/
+│   ├── saltyMac/
 │   ├── scripts/
 │   └── tart/
 ├── docs/
@@ -191,6 +195,20 @@ base:
 
 This defines which states are applied to minions.
 
-## CI Workflow
+## GitHub Actions CI
 
-One of the goals of this repo is to demonstrate modern Infrastructure as Code workflows for macOS. Please see the `README.md` doc in `/docs/CI` directory for more info.
+The repository's CI workflow lints the project, applies the Salt states to a
+GitHub-hosted macOS runner, verifies convergence, and then opens a pull request
+from `testing` to `main`.
+
+See [GitHub Actions CI](docs/githubActions.md) for the full workflow and branch
+promotion process.
+
+## Local macOS VM Demo
+
+The [`demo/`](demo/) directory is an optional playground for building a macOS VM
+with Tart, Packer, and Ansible. It is separate from the GitHub Actions CI
+workflow and is intended for users who want a disposable Mac on which to
+experiment with Salt.
+
+See the [VM demo guide](demo/README.md) for prerequisites and build instructions.

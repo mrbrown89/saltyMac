@@ -37,7 +37,7 @@ jobs:
         run: ruff check .
 
       - name: Check Ansible Playbook Syntax
-        run: find ci/ansible -name "*.yml" -print0 | xargs -0 -n1 ansible-playbook --syntax-check
+        run: find demo/ansible -name "*.yml" -print0 | xargs -0 -n1 ansible-playbook --syntax-check
 
       - name: Check Packer Formatting
         run: packer fmt -check -recursive .
