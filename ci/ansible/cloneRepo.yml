@@ -15,4 +15,4 @@
         repo: "{{ repo_url }}"
         dest: "{{ repo_dest }}"
         version: "{{ repo_branch }}"
-        update: yes
+        update: true
