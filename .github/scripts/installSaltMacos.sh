@@ -22,3 +22,8 @@ log "Salt version..."
 sudo /opt/salt/salt-call --local --version
 
 log "Salt install complete."
+
+sudo tee /etc/salt/grains >/dev/null <<'EOF'
+salty_ci: true
+computerRole: github-runner
+EOF
