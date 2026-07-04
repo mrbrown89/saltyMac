@@ -1,5 +1,8 @@
+ [tool.ruff.lint]
+ extend-select = ["F"]
+
  [tool.ruff.lint.pyflakes]
- builtins = [
+ extend-builtins = [
    "__salt__",
    "__opts__",
    "__grains__",
