@@ -1,3 +1,5 @@
+[![Validate Salt States](https://github.com/mrbrown89/saltyMac/actions/workflows/saltyAction.yml/badge.svg?branch=testing)](https://github.com/mrbrown89/saltyMac/actions/workflows/saltyAction.yml)
+
 # saltyMac
 
 Welcome to my saltyMac repo!
@@ -192,5 +194,3 @@ This defines which states are applied to minions.
 ## CI Workflow
 
 One of the goals of this repo is to demonstrate modern Infrastructure as Code workflows for macOS. Please see the `README.md` doc in `/docs/CI` directory for more info.
-
-
