@@ -5,6 +5,5 @@ include:
   - security.disableRemoteAppleEvents
   - security.sudoTimeout
   - security.nfsServer
-  - security.disableAutoLogin
   - security.disableGuest
   - security.networkTime

@@ -7,5 +7,4 @@ base:
     - brew
     - security
     - smbSigning
-    - nudge
     - installomatorApps

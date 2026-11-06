@@ -21,10 +21,23 @@ source "tart-cli" "saltyMac" {
 build {
   sources = ["source.tart-cli.saltyMac"]
 
+  ###################################
+  # Clone saltyMac repository
+  ###################################
+
   provisioner "ansible" {
     playbook_file   = "../ansible/cloneRepo.yml"
     user            = "admin"
     extra_arguments = ["--extra-vars", "ansible_become_pass=admin"]
   }
 
+  ###################################
+  # Synchronise custom Salt modules
+  ###################################
+
+  provisioner "shell" {
+    inline = [
+      "sudo salt-call --local saltutil.sync_all --file-root=/opt/saltyMac/salt --pillar-root=/opt/saltyMac/pillar"
+    ]
+  }
 }
