@@ -1,4 +1,3 @@
----
 extends: default
 
 rules:
@@ -9,5 +8,4 @@ rules:
   truthy:
     allowed-values: ["true", "false", "on"]
 
-  document-start:
-    present: false
+  document-start: disable
