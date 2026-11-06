@@ -90,7 +90,10 @@ build {
   provisioner "shell" {
     inline = [
       # Enable passwordless sudo for admin
-      "echo admin | sudo -S sh -c \"mkdir -p /etc/sudoers.d/; echo 'admin ALL=(ALL) NOPASSWD: ALL' | EDITOR=tee visudo /etc/sudoers.d/admin-nopasswd\"",
+      "echo admin | sudo -S sh -c \"mkdir -p /etc/sudoers.d/; echo 'admin ALL=(ALL) NOPASSWD: ALL' | EDITOR=tee visudo /etc/sudoers.d/admin-nopasswd; chmod 0440 /etc/sudoers.d/admin-nopasswd\"",
+
+      # Validate sudoers configuration
+      "sudo visudo -c",
 
       # Set timezone
       "sudo systemsetup -settimezone GMT 2>/dev/null",
