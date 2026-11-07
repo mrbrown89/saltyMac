@@ -88,17 +88,13 @@ for a real system.
 First synchronize the custom execution modules, states, and grains:
 
 ```bash
-sudo salt-call --local saltutil.sync_all \
-  --file-root="/opt/saltyMac/salt" \
-  --pillar-root="/opt/saltyMac/pillar"
+sudo salt-call --local saltutil.sync_all --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar"
 ```
 
 Apply the complete configuration:
 
 ```bash
-sudo salt-call --local state.apply saltenv=base \
-  --file-root="/opt/saltyMac/salt" \
-  --pillar-root="/opt/saltyMac/pillar"
+sudo salt-call --local state.apply saltenv=base --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar"
 ```
 
 The first run also writes the masterless Salt configuration. Subsequent runs
