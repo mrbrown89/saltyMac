@@ -1,9 +1,10 @@
 installomator_apps:
-  vscode:
-    label: visualstudiocode
-    name: "Visual Studio Code"
-    bundle_id: com.microsoft.VSCode
+  swiftdialog:
+    label: swiftdialog
+    name: Dialog
+    bundle_id: au.csiro.dialog
+    search_paths:
+      - /Library/Application Support/Dialog
     args:
-      - BLOCKING_PROCESS_ACTION=silent_fail
+      - BLOCKING_PROCESS_ACTION=ignore
       - NOTIFY=silent
-      - DEBUG=0
