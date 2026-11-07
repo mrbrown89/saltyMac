@@ -37,7 +37,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo salt-call --local saltutil.sync_all --file-root=/opt/saltyMac/salt --pillar-root=/opt/saltyMac/pillar"
+      "sudo /opt/salt/salt-call --local saltutil.sync_all --file-root=/opt/saltyMac/salt --pillar-root=/opt/saltyMac/pillar"
     ]
   }
 }
