@@ -1,8 +1,8 @@
 installomator_apps:
-  nudge:
-    label: nudge
-    name: nudge
-    bundle_id: com.github.macadmins.Nudge
+  vscode:
+    label: visualstudiocode
+    name: "Visual Studio Code"
+    bundle_id: com.microsoft.VSCode
     args:
       - BLOCKING_PROCESS_ACTION=silent_fail
       - NOTIFY=silent
