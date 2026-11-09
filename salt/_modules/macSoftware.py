@@ -5,6 +5,9 @@ import subprocess
 import salt.utils.platform
 
 
+_DEFAULT_INSTALLOMATOR_PATH = "/usr/local/Installomator.zsh"
+
+
 def __virtual__():
     if salt.utils.platform.is_darwin():
         return "macSoftware"
@@ -21,8 +24,10 @@ def _run(cmd):
             timeout=15,
         )
         return proc.stdout.strip(), proc.stderr.strip(), proc.returncode
-    except Exception:
-        return "", "", 1
+    except subprocess.TimeoutExpired:
+        return "", "Command timed out after 15 seconds", 1
+    except OSError as exc:
+        return "", str(exc), 1
 
 
 def _readPlist(appPath):
@@ -129,18 +134,29 @@ def _matches(value, pattern, exact=False):
 
 
 def _versionKey(version):
-    if version is None:
-        return ()
-
     parts = []
 
-    for part in str(version).replace("-", ".").split("."):
-        if part.isdigit():
-            parts.append(int(part))
+    for part in version.replace("-", ".").split("."):
+        if part.isdecimal():
+            parts.append((1, int(part)))
         else:
-            parts.append(part.lower())
+            parts.append((0, part.lower()))
 
     return tuple(parts)
+
+
+def _highestDisplayVersion(apps):
+    versions = [
+        str(app["displayVersion"]).strip()
+        for app in apps
+        if app.get("displayVersion")
+    ]
+
+    return max(
+        (version for version in versions if version),
+        key=_versionKey,
+        default=None,
+    )
 
 
 def getInstalledApps(
@@ -160,18 +176,21 @@ def getInstalledApps(
         includeUserApplications=includeUserApplications,
     ):
         plist = _readPlist(appPath)
-
-        displayName = (
-            plist.get("CFBundleDisplayName")
-            or plist.get("CFBundleName")
-            or os.path.basename(appPath).replace(".app", "")
+        bundleName = os.path.splitext(os.path.basename(appPath))[0]
+        appNames = (
+            plist.get("CFBundleDisplayName"),
+            plist.get("CFBundleName"),
+            bundleName,
         )
+        displayName = appNames[0] or appNames[1] or bundleName
 
         bundleIdentifier = plist.get("CFBundleIdentifier")
         shortVersion = plist.get("CFBundleShortVersionString")
         buildVersion = plist.get("CFBundleVersion")
 
-        if name and not _matches(displayName, name, exact=exact):
+        if name and not any(
+            _matches(appName, name, exact=exact) for appName in appNames
+        ):
             continue
 
         if bundleId and not _matches(bundleIdentifier, bundleId, exact=exact):
@@ -226,21 +245,7 @@ def getInstalledVersion(
         searchPaths=searchPaths,
     )
 
-    if not matches:
-        return None
-
-    versionedMatches = [m for m in matches if m.get("displayVersion")]
-
-    if not versionedMatches:
-        return None
-
-    bestMatch = sorted(
-        versionedMatches,
-        key=lambda m: _versionKey(m.get("displayVersion")),
-        reverse=True,
-    )[0]
-
-    return bestMatch.get("displayVersion")
+    return _highestDisplayVersion(matches)
 
 
 def isVersionInstalled(
@@ -294,15 +299,14 @@ def getAppByBundleId(bundleId, searchPaths=None):
 
 def getInstallomatorInfo(
     label,
-    installomatorPath="/opt/saltyMacs/bin/Installomator.zsh",
+    installomatorPath=_DEFAULT_INSTALLOMATOR_PATH,
     debugLevel="2",
 ):
     """
     Run Installomator in debug mode and return parsed metadata.
 
-    CLI Examples:
+    CLI Example:
         salt-call --local macSoftware.getInstallomatorInfo slack
-        salt-call --local macSoftware.getInstallomatorInfo jamfcheck
     """
     stdout, stderr, retcode = _run(
         [
@@ -311,87 +315,120 @@ def getInstallomatorInfo(
             "DEBUG={0}".format(debugLevel),
             "NOTIFY=silent",
             "BLOCKING_PROCESS_ACTION=ignore",
+            # The bundled script reapplies CLI overrides after loading the label.
+            # Disable native updaters during the version probe.
+            "updateTool=",
         ]
     )
 
     output = "\n".join([stdout, stderr])
-
     info = {
         "label": label,
         "retcode": retcode,
         "latestVersion": None,
         "downloadUrl": None,
         "name": None,
+        "appName": None,
         "raw": output,
+    }
+    fields = {
+        "appNewVersion": "latestVersion",
+        "downloadURL": "downloadUrl",
+        "name": "name",
+        "appName": "appName",
     }
 
     for line in output.splitlines():
-        cleanLine = line.strip()
+        # Installomator logs "timestamp : level : label : message".
+        parts = line.strip().split(" : ", 3)
+        message = parts[-1].strip()
+        key, separator, value = message.partition("=")
 
-        if "appNewVersion" in cleanLine:
-            info["latestVersion"] = cleanLine.split(":", 1)[-1].strip()
+        if separator and key in fields:
+            value = value.strip()
+            if value:
+                info[fields[key]] = value
 
-        elif "Latest version of" in cleanLine and " is " in cleanLine:
-            info["latestVersion"] = cleanLine.rsplit(" is ", 1)[-1].strip()
-
-        elif "downloadURL" in cleanLine:
-            info["downloadUrl"] = cleanLine.split(":", 1)[-1].strip()
-
-        elif cleanLine.startswith("name="):
-            info["name"] = cleanLine.split("=", 1)[1].strip()
+        elif message.startswith("Latest version of ") and " is " in message:
+            value = message.rsplit(" is ", 1)[-1].strip()
+            if value:
+                info["latestVersion"] = value
 
     return info
+
 
 def installomatorUpdateNeeded(
     label,
     name=None,
     bundleId=None,
     exact=False,
-    installomatorPath="/opt/saltyMacs/bin/Installomator.zsh",
+    installomatorPath=_DEFAULT_INSTALLOMATOR_PATH,
     searchPaths=None,
 ):
-    installedVersion = getInstalledVersion(
-        name=name,
-        exact=exact,
-        bundleId=bundleId,
-        searchPaths=searchPaths,
-    )
-
-    installomatorInfo = getInstallomatorInfo(
+    info = getInstallomatorInfo(
         label=label,
         installomatorPath=installomatorPath,
     )
 
-    latestVersion = installomatorInfo.get("latestVersion")
+    lookupName = name
+    lookupExact = exact
+
+    if not lookupName and not bundleId:
+        lookupName = info.get("appName") or info.get("name")
+        if lookupName and lookupName.endswith(".app"):
+            lookupName = lookupName[:-4]
+        lookupExact = True
+
+    matches = []
+    if lookupName or bundleId:
+        matches = getInstalledApps(
+            name=lookupName,
+            exact=lookupExact,
+            bundleId=bundleId,
+            includeSignature=False,
+            searchPaths=searchPaths,
+        )
+
+    installedVersion = _highestDisplayVersion(matches)
+    probeSucceeded = info.get("retcode") == 0
+    latestVersion = info.get("latestVersion") if probeSucceeded else None
 
     result = {
         "label": label,
         "name": name,
         "bundleId": bundleId,
         "searchPaths": searchPaths,
+        "lookupName": lookupName,
+        "lookupExact": lookupExact,
+        "installed": bool(matches) if lookupName or bundleId else None,
         "installedVersion": installedVersion,
         "latestVersion": latestVersion,
-        "updateNeeded": False,
+        "updateNeeded": None,
         "reason": None,
     }
 
-    if installedVersion is None:
+    if not lookupName and not bundleId:
+        result["reason"] = "No application name or bundle ID available for verification"
+    elif not matches:
         result["updateNeeded"] = True
-        result["reason"] = "App is not installed"
-        return result
-
-    if latestVersion is None:
-        result["updateNeeded"] = True
+        result["reason"] = "App was not found in the configured search paths"
+    elif not installedVersion:
+        result["reason"] = "App was found but its installed version could not be read"
+    elif not probeSucceeded:
+        result["reason"] = "Installomator version probe failed (exit {})".format(
+            info.get("retcode", "unknown")
+        )
+    elif not latestVersion:
         result["reason"] = "Installomator latest version could not be determined"
-        return result
-
-    if str(installedVersion).strip() != str(latestVersion).strip():
+    elif installedVersion != latestVersion:
         result["updateNeeded"] = True
         result["reason"] = "Installed version differs from latest version"
-        return result
+    else:
+        result["updateNeeded"] = False
+        result["reason"] = "Installed version matches latest version"
 
-    result["reason"] = "Installed version matches latest version"
     return result
+
 
 def listInstalledSoftware(
     includeVersions=True,
@@ -402,18 +439,16 @@ def listInstalledSoftware(
     searchPaths=None,
     sort=True,
 ):
-
     """
     Return a simplified inventory of installed macOS applications.
+
     CLI Examples:
         salt-call --local macSoftware.listInstalledSoftware
         salt-call --local macSoftware.listInstalledSoftware includePaths=True
         salt-call --local macSoftware.listInstalledSoftware includeSystemApps=False
     """
-
     if searchPaths is None:
-        searchPaths = []
-        searchPaths.append("/Applications")
+        searchPaths = ["/Applications"]
 
         if includeSystemApps:
             searchPaths.extend(
@@ -439,12 +474,13 @@ def listInstalledSoftware(
 
         if includeVersions:
             item["version"] = app.get("displayVersion")
-        
+
         if includeBundleIds:
             item["bundleId"] = app.get("bundleId")
 
         if includePaths:
             item["path"] = app.get("path")
+
         results.append(item)
 
     if sort:
