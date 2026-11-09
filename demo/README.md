@@ -20,16 +20,14 @@ restore image and VMs. Install these tools before continuing:
 They can be installed with Homebrew:
 
 ```bash
-brew install cirruslabs/cli/tart hashicorp/tap/packer ansible
+brew install openai/tools/tart hashicorp/tap/packer ansible
 ```
 
 Run all commands below from a clone of this repository.
 
 ## 1. Build the base macOS VM
 
-The Packer template in `demo/tart` creates a base macOS VM called
-`tahoe-26.2`. It downloads a macOS restore image, completes Setup Assistant,
-enables remote access, and prepares an `admin` account.
+The Packer template in `demo/tart` creates a base macOS VM called`golden-gate-27.2`. It downloads a macOS restore image, completes Setup Assistant, enables remote access and prepares an `admin` account.
 
 ```bash
 cd demo/tart
@@ -46,8 +44,7 @@ tart list
 
 ## 2. Create the saltyMac demo VM
 
-Return to the repository root, clone the base VM, and run the second Packer
-template:
+Return to the repository root, clone the base VM, and run the second Packer template:
 
 ```bash
 cd ../..
@@ -57,9 +54,7 @@ packer init .
 packer build .
 ```
 
-This template uses Ansible to clone the `main` branch of this repository into
-`/opt/saltyMac` inside the VM. Consequently, uncommitted local changes are not
-copied into the demo VM.
+This template uses Ansible to clone the `main` branch of this repository int`o /opt/saltyMac` inside the VM. Consequently, uncommitted local changes are not copied into the demo VM.
 
 ## 3. Start and access the VM
 
@@ -69,9 +64,11 @@ Start the VM:
 tart run saltyMac
 ```
 
-Log in once through the VM window with username `admin` and password `admin`.
-Keeping an active GUI login is useful for states that interact with the console
-user or LaunchAgents.
+You can also start the VM without a window popping up:
+
+```
+tart run saltyMac --no-graphics
+```
 
 You can then connect from another terminal:
 
@@ -79,33 +76,23 @@ You can then connect from another terminal:
 ssh admin@"$(tart ip saltyMac)"
 ```
 
-The credentials are deliberately simple because this VM is only a disposable
-local demo. Do not expose it to an untrusted network or reuse these credentials
-for a real system.
+The credentials are deliberately simple because this VM is only a disposable local demo. Do not expose it to an untrusted network or reuse these credentials for a real system.
 
 ## 4. Run Salt
 
-First synchronize the custom execution modules, states, and grains:
-
-```bash
-sudo salt-call --local saltutil.sync_all --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar"
-```
-
-Apply the complete configuration:
+Packer will handle the first sync of grains and modules. You'll just need to run the first salt call with:
 
 ```bash
 sudo salt-call --local state.apply saltenv=base --file-root="/opt/saltyMac/salt" --pillar-root="/opt/saltyMac/pillar"
 ```
 
-The first run also writes the masterless Salt configuration. Subsequent runs
-can therefore use the shorter command:
+The first run also writes the masterless Salt configuration. Any further runs can be run with:
 
 ```bash
 sudo salt-call --local state.apply
 ```
 
-Run it again to verify convergence: a correctly converged state should report
-few or no additional changes. To preview changes without applying them, use:
+You can run it in test mode with:
 
 ```bash
 sudo salt-call --local state.apply test=True
@@ -118,9 +105,8 @@ sudo salt-call --local state.apply test=True
 - `ansible/`: playbooks used by the Packer templates.
 - `scripts/`: bootstrap and Homebrew installation helpers.
 
-To discard the demo machines when finished:
+To delete the demo machines when finished:
 
 ```bash
 tart delete saltyMac
-tart delete tahoe-26.2
 ```

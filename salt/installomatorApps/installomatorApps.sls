@@ -12,6 +12,9 @@ installomator_{{ app_id }}:
 {% for arg in app.get('args', []) %}
       - {{ arg }}
 {% endfor %}
+{% if app.get('search_paths') %}
+    - searchPaths: {{ app.search_paths | tojson }}
+{% endif %}
     - require:
       - file: installomator-script
 
