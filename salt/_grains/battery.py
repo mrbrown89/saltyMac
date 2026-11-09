@@ -4,11 +4,14 @@
 Salt grain: battery information for macOS
 
 Provides:
+
     battery:
         present
+        device_type
         condition
         cycle_count
         maximum_capacity_percent
+        charge_percent
         charging
         power_source
 '''
@@ -33,7 +36,6 @@ def battery():
     '''
     Return battery information for macOS systems.
     '''
-
     grain = {
         'present': False,
         'device_type': 'desktop'
@@ -66,7 +68,7 @@ def battery():
     if cycle_match:
         grain['cycle_count'] = int(cycle_match.group(1))
 
-    # Maximum Capacity
+    # Maximum Capacity (battery health)
     capacity_match = re.search(
         r'Maximum Capacity:\s+(\d+)%',
         profiler_output
@@ -77,14 +79,35 @@ def battery():
             capacity_match.group(1)
         )
 
-    # Charging / Power Source
+    # Current battery information
     batt_output = _run("pmset -g batt")
 
+    # Current battery charge percentage
+    charge_match = re.search(
+        r'\b(\d{1,3})%;',
+        batt_output
+    )
+
+    if charge_match:
+        grain['charge_percent'] = int(
+            charge_match.group(1)
+        )
+
+    # Power source
     if "AC Power" in batt_output:
         grain['power_source'] = 'AC Power'
     elif "Battery Power" in batt_output:
         grain['power_source'] = 'Battery Power'
+    else:
+        grain['power_source'] = 'Unknown'
 
-    grain['charging'] = "charging" in batt_output.lower()
+    # Detect actual charging status
+    grain['charging'] = bool(
+        re.search(
+            r';\s*charging\s*;',
+            batt_output,
+            re.IGNORECASE
+        )
+    )
 
     return {'battery': grain}
